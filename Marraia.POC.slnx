@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Marraia.POC.Api/Marraia.POC.Api.csproj" />
+    <Project Path="src/Marraia.POC.Application/Marraia.POC.Application.csproj" />
+    <Project Path="src/Marraia.POC.Domain/Marraia.POC.Domain.csproj" />
+  </Folder>
+</Solution>

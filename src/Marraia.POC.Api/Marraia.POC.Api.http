@@ -1,0 +1,16 @@
+@Marraia.POC.Api_HostAddress = http://localhost:5017
+
+GET {{Marraia.POC.Api_HostAddress}}/api/products
+Accept: application/json
+
+###
+
+POST {{Marraia.POC.Api_HostAddress}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Notebook",
+  "price": 4500.90
+}
+
+###
