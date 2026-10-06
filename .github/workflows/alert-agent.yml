@@ -1,0 +1,61 @@
+name: Alert Agent
+
+on:
+  # Disparado pelo webhook do Grafana (POST /repos/OWNER/REPO/dispatches)
+  repository_dispatch:
+    types: [grafana-alert]
+  # Disparo manual para testes (aba Actions > Run workflow)
+  workflow_dispatch:
+  # Alternativa sem webhook: descomente para verificar a cada 15 minutos
+  # schedule:
+  #   - cron: '*/15 * * * *'
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+# Uma execução por vez, para não analisar o mesmo alerta em paralelo
+concurrency:
+  group: alert-agent
+  cancel-in-progress: false
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ vars.BASE_BRANCH || 'main' }}
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Instalar MCP do Grafana e Claude Code
+        run: |
+          go install github.com/grafana/mcp-grafana/cmd/mcp-grafana@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+          npm install -g @anthropic-ai/claude-code
+
+      - name: Analisar alertas ativos
+        env:
+          GRAFANA_URL: ${{ vars.GRAFANA_URL }}
+          GRAFANA_SERVICE_ACCOUNT_TOKEN: ${{ secrets.GRAFANA_SERVICE_ACCOUNT_TOKEN }}
+          # Token da assinatura Claude Pro/Max (gerado com: claude setup-token)
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Use um PAT em AGENT_GH_TOKEN se quiser que o PR dispare o seu CI
+          GH_TOKEN: ${{ secrets.AGENT_GH_TOKEN || github.token }}
+          BASE_BRANCH: ${{ vars.BASE_BRANCH || 'main' }}
+          MIN_CONFIDENCE: ${{ vars.MIN_CONFIDENCE || '70' }}
+          ALERT_NAME_REGEX: ${{ vars.ALERT_NAME_REGEX || '.*' }}
+        run: |
+          # Copia o agente para fora do repositório (o agente edita o código durante a execução)
+          cp .github/alert-agent/* "$RUNNER_TEMP/"
+          bash "$RUNNER_TEMP/agent.sh"

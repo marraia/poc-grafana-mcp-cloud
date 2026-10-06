@@ -1,4 +1,5 @@
 using Marraia.POC.Application.Telemetry;
+using Npgsql;
 using OpenTelemetry;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
@@ -45,6 +46,7 @@ public static class OpenTelemetryExtensions
                 .AddSource(ApplicationDiagnostics.SourceName)
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
+                .AddNpgsql()
                 .AddOtlpExporter(options => ConfigureExporter(options, "v1/traces")))
             .WithMetrics(metrics => metrics
                 .AddMeter(ApplicationDiagnostics.SourceName)

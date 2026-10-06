@@ -16,4 +16,12 @@ public static class ApplicationDiagnostics
 
     public static readonly Histogram<double> ProductPrice =
         Meter.CreateHistogram<double>("poc.products.price", unit: "BRL", description: "Price of created products");
+
+    public static readonly Counter<long> Errors =
+        Meter.CreateCounter<long>("poc.errors", unit: "{error}", description: "Number of errors raised by the application");
+
+    public static void RecordError(Exception exception, string operation)
+        => Errors.Add(1,
+            new KeyValuePair<string, object?>("error.type", exception.GetType().FullName),
+            new KeyValuePair<string, object?>("operation", operation));
 }

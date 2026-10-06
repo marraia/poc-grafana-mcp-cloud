@@ -12,6 +12,11 @@ public class ProductsController(IProductService productService) : ControllerBase
     public async Task<ActionResult<IReadOnlyCollection<ProductResponse>>> GetAll(CancellationToken cancellationToken)
         => Ok(await productService.GetAllAsync(cancellationToken));
 
+    // Reads from PostgreSQL; with no database available the connection fails and the API returns HTTP 500.
+    [HttpGet("database")]
+    public async Task<ActionResult<IReadOnlyCollection<ProductResponse>>> GetAllFromDatabase(CancellationToken cancellationToken)
+        => Ok(await productService.GetAllFromDatabaseAsync(cancellationToken));
+
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<ProductResponse>> GetById(Guid id, CancellationToken cancellationToken)
     {

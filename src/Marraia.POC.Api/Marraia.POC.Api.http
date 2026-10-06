@@ -14,3 +14,13 @@ Content-Type: application/json
 }
 
 ###
+
+### Erro 500: divisão por zero
+GET {{Marraia.POC.Api_HostAddress}}/api/calculations/divide?dividend=10&divisor=0
+Accept: application/json
+
+### Erro 500: falha de conexão com o banco
+GET {{Marraia.POC.Api_HostAddress}}/api/products/database
+Accept: application/json
+
+###

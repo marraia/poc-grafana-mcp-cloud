@@ -19,4 +19,15 @@ public class Product
         Price = price;
         CreatedAt = DateTime.UtcNow;
     }
+
+    private Product(Guid id, string name, decimal price, DateTime createdAt)
+    {
+        Id = id;
+        Name = name;
+        Price = price;
+        CreatedAt = createdAt;
+    }
+
+    public static Product Restore(Guid id, string name, decimal price, DateTime createdAt)
+        => new(id, name, price, createdAt);
 }
