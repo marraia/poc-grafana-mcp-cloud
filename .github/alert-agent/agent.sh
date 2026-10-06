@@ -15,10 +15,18 @@ git config user.name  "Alert Agent"
 git config user.email "alert-agent@users.noreply.github.com"
 gh label create "$LABEL" --color D93F0B --description "Criado pelo agente de alertas" --force >/dev/null
 
+GRAFANA_URL="${GRAFANA_URL%/}"   # remove barra final, se houver
+
 alerts=$(curl -fsS \
   -H "Authorization: Bearer $GRAFANA_SERVICE_ACCOUNT_TOKEN" \
   "$GRAFANA_URL/api/alertmanager/grafana/api/v2/alerts?active=true&silenced=false&inhibited=false") \
   || { echo "::error::Falha ao consultar o Grafana"; exit 1; }
+
+if ! jq -e 'type == "array"' >/dev/null 2>&1 <<<"$alerts"; then
+  echo "::error::O Grafana não retornou uma lista de alertas. Início da resposta:"
+  head -c 500 <<<"$alerts"; echo
+  exit 1
+fi
 
 total=$(jq --arg re "$FILTER" '[.[] | select(.labels.alertname | test($re))] | length' <<<"$alerts")
 echo "Alertas ativos que passam no filtro: $total"
