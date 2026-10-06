@@ -7,8 +7,13 @@ namespace Marraia.POC.Api.Controllers;
 [Route("api/[controller]")]
 public class CalculationsController(ICalculationService calculationService) : ControllerBase
 {
-    // Divisor defaults to 0 so calling the route without parameters throws DivideByZeroException (HTTP 500).
+    // Divisor defaults to 1 and a zero divisor is rejected with HTTP 400 instead of surfacing a 500.
     [HttpGet("divide")]
-    public ActionResult<decimal> Divide([FromQuery] decimal dividend = 10, [FromQuery] decimal divisor = 0)
-        => Ok(calculationService.Divide(dividend, divisor));
+    public ActionResult<decimal> Divide([FromQuery] decimal dividend = 10, [FromQuery] decimal divisor = 1)
+    {
+        if (divisor == 0)
+            return BadRequest(new { error = "Divisor must not be zero." });
+
+        return Ok(calculationService.Divide(dividend, divisor));
+    }
 }
