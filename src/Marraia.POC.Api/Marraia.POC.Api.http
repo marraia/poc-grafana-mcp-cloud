@@ -24,3 +24,9 @@ GET {{Marraia.POC.Api_HostAddress}}/api/products/database
 Accept: application/json
 
 ###
+
+### Erro 500: multiplicação resultando em número infinito
+GET {{Marraia.POC.Api_HostAddress}}/api/calculations/multiply?multiplicand=1.7976931348623157E308&multiplier=10
+Accept: application/json
+
+###

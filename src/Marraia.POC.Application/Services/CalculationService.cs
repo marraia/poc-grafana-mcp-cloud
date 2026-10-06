@@ -29,4 +29,31 @@ public class CalculationService(ILogger<CalculationService> logger) : ICalculati
             throw;
         }
     }
+
+    public double Multiply(double multiplicand, double multiplier)
+    {
+        using var activity = ApplicationDiagnostics.ActivitySource.StartActivity("CalculationService.Multiply");
+        activity?.SetTag("calculation.multiplicand", multiplicand);
+        activity?.SetTag("calculation.multiplier", multiplier);
+
+        try
+        {
+            // double multiplication does not throw on overflow: it silently yields Infinity.
+            var result = multiplicand * multiplier;
+            if (double.IsInfinity(result))
+                throw new OverflowException($"Multiplication {multiplicand} * {multiplier} resulted in an infinite number.");
+
+            activity?.SetTag("calculation.result", result);
+            logger.LogInformation("Multiplication {Multiplicand} * {Multiplier} = {Result}", multiplicand, multiplier, result);
+            return result;
+        }
+        catch (OverflowException ex)
+        {
+            activity?.AddException(ex);
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+            ApplicationDiagnostics.RecordError(ex, "calculation.multiply");
+            logger.LogError(ex, "Failed to multiply {Multiplicand} by {Multiplier}", multiplicand, multiplier);
+            throw;
+        }
+    }
 }
