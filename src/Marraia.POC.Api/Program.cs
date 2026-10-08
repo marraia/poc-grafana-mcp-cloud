@@ -5,7 +5,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddObservability();
 
-builder.Services.AddApplication(builder.Configuration.GetConnectionString("ProductsDatabase"));
+builder.Services.AddApplication(
+    builder.Configuration.GetConnectionString("ProductsDatabase"),
+    builder.Configuration["ExternalServices:QuotesApi"]);
 builder.Services.AddControllers();
 // Unhandled exceptions are logged and returned as HTTP 500 with a ProblemDetails body.
 builder.Services.AddProblemDetails();

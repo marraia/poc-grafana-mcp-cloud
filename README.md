@@ -39,8 +39,11 @@ Endpoints:
 - `GET  /api/products/{id}`
 - `POST /api/products` — `{ "name": "Notebook", "price": 4500.90 }`
 - `GET  /api/products/database` — lê produtos do PostgreSQL (`ConnectionStrings:ProductsDatabase`). Sem banco disponível, a conexão falha e retorna **500**
+- `GET  /api/quotes/dollar` — consulta a API externa de cotação (`ExternalServices:QuotesApi`). Com o provedor fora do ar, a chamada HTTP falha e retorna **500**
 - `GET  /api/calculations/divide?dividend=10&divisor=0` — divisão por zero (`DivideByZeroException`) e retorna **500**
 - `GET  /api/calculations/multiply?multiplicand=1.7976931348623157E308&multiplier=10` — multiplicação que resulta em número infinito (`OverflowException`) e retorna **500**
+
+Para gerar cada cenário de alerta, use `scripts/cenarios.sh pr|issue|externo|normal [minutos]`.
 
 As rotas de erro existem para gerar alertas no Grafana. Exceções não tratadas são logadas, registradas
 no span (status `Error`) e retornadas como `ProblemDetails` com status 500.
